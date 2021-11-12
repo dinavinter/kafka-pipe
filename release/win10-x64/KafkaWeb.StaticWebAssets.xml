@@ -1,0 +1,4 @@
+﻿<StaticWebAssets Version="1.0">
+  <ContentRoot BasePath="_content/Radzen.Blazor" Path="C:\Users\I347305\.nuget\packages\radzen.blazor\2.10.5\build\..\staticwebassets\" />
+  <ContentRoot BasePath="/" Path="C:\Users\I347305\RiderProjects\KafkaSelect\KafkaWeb\obj\Release\net5.0\win10-x64\scopedcss\bundle\" />
+</StaticWebAssets>
