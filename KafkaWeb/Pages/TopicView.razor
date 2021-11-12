@@ -1,0 +1,109 @@
+@page "/topic"
+
+@using System.Threading
+@using Confluent.Kafka
+@using KafkaWeb.Grains
+@using Microsoft.Extensions.Logging
+@using Microsoft.Extensions.Options
+@using Orleans
+@using Orleans.Streams
+@using Sample.ServerSide.Services
+ @inject ConsumerService _consumerService;
+ @inject IGrainFactory _grainFactory;
+ @inject IOptionsMonitor<ConsumerSettings> _consumerSettings;  
+ 
+<h1>Topic Messages</h1>
+<div class="row" style="padding: 10px">
+    <RadzenTextBox AutoComplete="true" @bind-Value="@Topic" ></RadzenTextBox>
+    <RadzenTextBox AutoComplete="true" @bind-Value="@SiteId" ></RadzenTextBox>
+    <RadzenButton Click="@((args) => SubscribeAsync(@Topic))">Refresh</RadzenButton>
+</div>
+
+<div class="row" style="padding: 10px">
+    <RadzenTextBox AutoComplete="true" @bind-Value="@ToTopic" ></RadzenTextBox>
+    <RadzenButton Click="@((args) => SendAsync(@ToTopic))">Send</RadzenButton>
+</div>
+<div class="row">
+    <RadzenGrid AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowPaging="true" PageSize="10"
+                AllowSorting="true" Data="@_stream" TItem="ConsumeResult<string, string>" ColumnWidth="200px">
+        <Columns>
+            <RadzenGridColumn TItem="ConsumeResult<string, string>" Property="Key" Title="Key" Width="33ch"/>
+            <RadzenGridColumn TItem="ConsumeResult<string, string>" Property="Message" Title="Message"/>
+            @* <RadzenGridColumn TItem="UpdateStreamEntry" Property="FoundAt" Title="Found at"/> *@
+        </Columns>
+    </RadzenGrid>
+</div>
+
+@code
+{
+    private readonly List<ConsumeResult<string, string> > _stream= new();
+    private StreamSubscriptionHandle<ConsumeResult<string, string> > _subscription;
+    private IAsyncStream<ConsumeResult<string,string>> _asyncStream;
+
+
+    public string? Topic { get; set; } //= //"il1-prod-UserManagementNotificationsPartitioned";
+    public string? ToTopic { get; set; } = "cl-502736321467-0";
+    public string? SiteId { get; set; } = "502736321467";
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (Topic != null)
+        {
+            await SubscribeAsync(Topic);
+        }
+        
+        if  (Topic==null)
+        {
+            Topic = _consumerSettings.CurrentValue.Topic;
+        }
+        if  (SiteId==null)
+        {
+            SiteId = _consumerSettings.CurrentValue.SiteId;
+        }
+        
+        if  (SiteId==null)
+        {
+            ToTopic = _consumerSettings.CurrentValue.ToTopic;
+        }
+          await base.OnInitializedAsync();
+    }
+
+    private async Task OnDataAsync( IEnumerable<ConsumeResult<string, string>> notifications)
+    {
+        _stream.AddRange(notifications);
+         InvokeAsync(StateHasChanged);
+    }
+    
+    
+
+    public void Dispose()
+    {
+    // unsubscribe from the orleans stream - best effort
+        try
+        {
+            // _subscription?.UnsubscribeAsync();
+        }
+        catch
+        {
+    // noop
+        }
+    }
+
+
+
+    private async Task SubscribeAsync(string topic)
+    {
+        _asyncStream = await _consumerService
+            .GetStream<ConsumeResult<string, string> >(Guid.Empty, topic, SiteId);
+
+        _subscription = await _asyncStream.SubscribeAsync(x => OnDataAsync(x.Select(a => a.Item)));
+        InvokeAsync(StateHasChanged);
+    }
+
+
+    private void SendAsync(string? toTopic)
+    {
+        _grainFactory.GetGrain<IOutputGrain>(Guid.Empty).Start(Topic, ToTopic);
+    }
+}

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+<PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+
+    </PropertyGroup>
+    <ItemGroup>
+
+        <PackageReference Include="Confluent.Kafka" Version="$(ConfluentKafkaVersion)" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsVersion)" />
+        <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="$(OrleansVersion)" />
+        <PackageReference Include="Microsoft.Orleans.Server" Version="$(OrleansVersion)" />
+
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Kafak.Orleans.GrainInterface\Kafak.Orleans.GrainInterface.csproj" />
+    </ItemGroup>
+    <PropertyGroup>
+        <OrleansVersion>3.*</OrleansVersion>
+        <StreamUtilsVersion>9.*</StreamUtilsVersion>
+        <ConfluentKafkaVersion>1.*</ConfluentKafkaVersion>
+        <ConfluentAvroVersion>1.7.7.7</ConfluentAvroVersion>
+        <MicrosoftExtensionsVersion>5.*</MicrosoftExtensionsVersion>
+    </PropertyGroup>
+</Project>

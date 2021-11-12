@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+<PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <PropertyGroup>
+            <OrleansVersion>3.*</OrleansVersion>
+            <StreamUtilsVersion>9.*</StreamUtilsVersion>
+            <ConfluentKafkaVersion>1.*</ConfluentKafkaVersion>
+            <ConfluentAvroVersion>1.7.7.7</ConfluentAvroVersion>
+            <MicrosoftExtensionsVersion>5.*</MicrosoftExtensionsVersion>
+        </PropertyGroup>
+    </PropertyGroup>
+
+</Project>
